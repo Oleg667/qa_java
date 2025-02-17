@@ -4,9 +4,12 @@ import java.util.List;
 
 public class Lion {
 
-    boolean hasMane;
+    private boolean hasMane;
+    // Добавлено поле `predator` типа `Predator`, чтобы инъектировать зависимость вместо жесткой привязки к `Feline`
+    private final Predator predator;
 
-    public Lion(String sex) throws Exception {
+    // Конструктор теперь принимает `Predator` в качестве аргумента, что позволяет передавать любую реализацию `Predator`
+    public Lion(String sex, Predator predator) throws Exception {
         if ("Самец".equals(sex)) {
             hasMane = true;
         } else if ("Самка".equals(sex)) {
@@ -14,12 +17,16 @@ public class Lion {
         } else {
             throw new Exception("Используйте допустимые значения пола животного - самей или самка");
         }
+        // Сохраняем переданную зависимость `Predator`, позволяя использовать разные реализации
+        this.predator = predator;
     }
 
-    Feline feline = new Feline();
-
     public int getKittens() {
-        return feline.getKittens();
+        // Добавлена проверка, является ли `predator` экземпляром `Feline`, чтобы вызывать `getKittens()`
+        if (predator instanceof Feline) {
+            return ((Feline) predator).getKittens();
+        }
+        return 0;
     }
 
     public boolean doesHaveMane() {
@@ -27,6 +34,7 @@ public class Lion {
     }
 
     public List<String> getFood() throws Exception {
-        return feline.getFood("Хищник");
+        // Теперь метод `getFood()` вызывает `eatMeat()` через интерфейс `Predator`, а не напрямую через `Feline`
+        return predator.eatMeat();
     }
 }
